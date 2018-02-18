@@ -47,13 +47,13 @@ function Blockchain () {
     // add a new transaction to this blockchain
     this.newTransaction = (sender, recepient, amount) => {
 
-        this.current_transactions.append({
+        this.current_transactions.push({
             sender: sender,
             recepient: recepient,
             amount: amount
         });
 
-        return this.last_block.index + 1;
+        return this.lastBlock().index + 1;
     }
 
     // proof of work loop
@@ -68,7 +68,7 @@ function Blockchain () {
 
     // utility get last block
     this.lastBlock = () => {
-        this.chain[this.chain.length - 1];
+        return this.chain[this.chain.length - 1];
     }
 
     // utility hash a block
