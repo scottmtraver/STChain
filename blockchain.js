@@ -1,50 +1,40 @@
 const crypto = require('crypto');
 const http = require('http')
+const rp = require('request-promise');
 
 // Find a number p that when hashed with the previous block’s solution a hash with 4 leading 0s is produced.
 
-function ValidateProof (last_proof, proof) {
+function ValidateProof(last_proof, proof) {
     let hash = crypto.createHash('sha256');
     let guess = hash.update(String(last_proof + proof)).digest('hex');
     console.log(guess)
     return guess.slice(0, 4) == '0000';
 }
 // utility - this chain is valid
-function ValidChain (chainToCheck) {
+function ValidChain(chainToCheck) {
     let lastBlock = chainToCheck[0]
     let index = 1;
 
-    while (index < chain.length) {
+    while (index < chainToCheck.length) {
         let currentBlock = chainToCheck[index]
-        if (currentBlock.prev_hash != 1) {
+        let hash = crypto.createHash('sha256');
+        if (currentBlock.previous_hash != hash.update(JSON.stringify(lastBlock)).digest('hex')) {
+            console.log('block isnt hashed')
             return false
         }
         if (!ValidateProof(lastBlock.proof, currentBlock.proof)) {
+            console.log('block proof isnt valid')
             return false
         }
 
         lastBlock = currentBlock
         index++
     }
+    console.log("chain is valid")
     return true
 }
 
-function Blockchain () {
-// Block Structure
-// block = {
-//     'index': 1,
-//     'timestamp': 1506057125.900785,
-//     'transactions': [
-//         {
-//             'sender': "8527147fe1f5426f9dd545de4b27ee00",
-//             'recipient': "a77f5cdfa2934df3954a5c7c7da5df1f",
-//             'amount': 5,
-//         }
-//     ],
-//     'proof': 324984774000,
-//     'previous_hash': "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
-// }
-
+function Blockchain() {
     // properties
     this.current_transactions = [];
     this.chain = [];
@@ -54,7 +44,7 @@ function Blockchain () {
     this.newBlock = (proof, prev_hash) => {
         let block = {
             index: this.chain.length + 1,
-            timestamp: Date.now,
+            timestamp: Date.now(),
             transactions: this.current_transactions,
             proof: proof,
             previous_hash: prev_hash
@@ -98,23 +88,54 @@ function Blockchain () {
         let newChain = null;
         let maxLen = this.chain.length
 
+        let promises = [];
+
         neighbors.forEach((url) => {
-            console.log('checkin ' + url)
-            http.get(url + '/chain', (res) => {
-                res.on("data", function(chunk) {
-                    let chain = JSON.parse(chunk)
-                    let len = chain.length
-                    if (len > maxLen && ValidChain(chain)) {
-                        this.chain = chain
-                    }
-                  });
-            })
+            promises.push(
+                rp(url + '/chain')
+            )
         })
 
-        if (newChain) {
-            this.chain = newChain
-            console.log('chain replaces')
-        }
+        Promise.all(promises).then((data) => {
+            data.forEach((chainJSON) => {
+                console.log('checking ' + chainJSON)
+                let chain = JSON.parse(chainJSON).chain
+                let len = chain.length
+                console.log(len + ' vs ' + maxLen)
+                console.log(ValidChain(chain))
+                console.log('here 2')
+                if (len > maxLen && ValidChain(chain)) {
+                    newChain = chain
+                }
+                console.log('inside all')
+                console.log(data)
+
+            })
+            console.log("done checking")
+
+            if (newChain) {
+                this.chain = newChain
+                console.log('chain replaces')
+            }
+        })
+
+        // neighbors.forEach((url) => {
+        //     console.log('checkin ' + url)
+
+        //     http.get(url + '/chain', (res) => {
+        //         res.on("data", function(chunk) {
+        //             console.log('checking ' + chunk)
+        //             let chain = JSON.parse(chunk).chain
+        //             let len = chain.length
+        //             console.log(len + ' vs ' + maxLen)
+        //             console.log(ValidChain(chain))
+        //             console.log('here 2')
+        //             if (len > maxLen && ValidChain(chain)) {
+        //                 this.chain = chain
+        //             }
+        //           });
+        //     })
+        // })
 
     }
 
@@ -123,7 +144,7 @@ function Blockchain () {
         return this.chain[this.chain.length - 1];
     }
 
-    
+
 
     // utility hash a block
     this.hashBlock = (block) => {
