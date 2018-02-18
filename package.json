@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/scottmtraver/STChain/issues"
   },
-  "homepage": "https://github.com/scottmtraver/STChain#readme"
+  "homepage": "https://github.com/scottmtraver/STChain#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
 }
