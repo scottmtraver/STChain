@@ -1,11 +1,12 @@
 const crypto = require('crypto');
-const hash = crypto.createHash('sha256');
 
 // Find a number p that when hashed with the previous block’s solution a hash with 4 leading 0s is produced.
 
 function ValidateProof (last_proof, proof) {
-    let guess = hash.update(last_proof + proof).digest('hex');
-    return guess.slice(0, 4) = '0000';
+    let hash = crypto.createHash('sha256');
+    let guess = hash.update(String(last_proof + proof)).digest('hex');
+    console.log(guess)
+    return guess.slice(0, 4) == '0000';
 }
 
 function Blockchain () {
@@ -57,9 +58,9 @@ function Blockchain () {
     }
 
     // proof of work loop
-    this.proofOfWork = () => {
+    this.proofOfWork = (last_proof) => {
         proof = 0
-        while (!this.valid_proof(last_proof, proof)) {
+        while (!ValidateProof(last_proof, proof)) {
             proof += 1
         }
 
@@ -73,7 +74,8 @@ function Blockchain () {
 
     // utility hash a block
     this.hashBlock = (block) => {
-        return hash.update(block).digest('hex');
+        let hash = crypto.createHash('sha256');
+        return hash.update(JSON.stringify(block)).digest('hex');
     }
 
 
@@ -82,5 +84,6 @@ function Blockchain () {
 }
 
 module.exports = {
-    blockchain: Blockchain
+    Blockchain: Blockchain,
+    ProofOfWork: ValidateProof
 }

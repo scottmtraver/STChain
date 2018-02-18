@@ -1,16 +1,18 @@
 // This is where the server passing on http calls to its internal copy of the blockchain
-const Blockchain = require('./blockchain').blockchain
+const Blockchain = require('./blockchain').Blockchain
 const chain = new Blockchain()
 
 const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
+
+let port = process.argv[2]
+let nodeID = process.argv[3]
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 
 // parse application/json
 app.use(bodyParser.json())
-const port = 5000;
 
 // print node information?
 app.get('/', (req, res) => res.send('Hello STChain'))
@@ -25,8 +27,17 @@ function displayChain (req, res) {
 }
 
 function mine (req, res) {
-    console.log('in mine')
-    res.send('in mine')
+    let lastBlock = chain.lastBlock();
+    let lastProof = lastBlock.proof;
+    let proof = chain.proofOfWork(lastProof)
+
+    chain.newTransaction(0, nodeID, 1)
+
+    let prevHash = chain.hashBlock(lastBlock)
+    let block = chain.newBlock(proof, prevHash)
+
+    console.log(proof)
+    res.send('New Block Awarded')
 }
 
 function transaction (req, res) {
@@ -35,4 +46,7 @@ function transaction (req, res) {
 }
 
 
-app.listen(port, () => console.log('Blockchain Node Started On ' + port))
+app.listen(port, () => {
+    console.log('Blockchain Node Started On Port: ' + port)
+    console.log('Node-ID: ' + nodeID)
+})
