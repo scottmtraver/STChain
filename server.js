@@ -19,7 +19,9 @@ app.get('/', (req, res) => res.send('Hello STChain'))
 
 app.get('/mine', mine);
 app.get('/chain', displayChain);
+app.get('/consensus', consensus);
 app.post('/transaction', transaction);
+app.post('/register', registerNode);
 
 
 function displayChain (req, res) {
@@ -43,6 +45,16 @@ function mine (req, res) {
 function transaction (req, res) {
     chain.newTransaction(req.body.sender, req.body.recepient, req.body.amount);
     res.send('transaction added to block')
+}
+
+function registerNode (req, res) {
+    chain.registerNode(req.body.nodeUrl)
+    res.send('new node registered')
+}
+
+function consensus (req, res) {
+    chain.resolveConflicts()
+    res.send('conflicts resolved')
 }
 
 
