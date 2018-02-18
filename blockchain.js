@@ -1,5 +1,14 @@
+const crypto = require('crypto');
+const hash = crypto.createHash('sha256');
 
+// Find a number p that when hashed with the previous block’s solution a hash with 4 leading 0s is produced.
 
+function ValidateProof (last_proof, proof) {
+    let guess = hash.update(last_proof + proof).digest('hex');
+    return guess.slice(0, 4) = '0000';
+}
+
+function Blockchain () {
 // Block Structure
 // block = {
 //     'index': 1,
@@ -14,3 +23,64 @@
 //     'proof': 324984774000,
 //     'previous_hash': "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
 // }
+
+    // properties
+    this.current_transactions = [];
+    this.chain = [];
+
+    // functions
+    this.newBlock = (proof, prev_hash) => {
+        let block = {
+            index: this.chain.length + 1,
+            timestamp: Date.now,
+            transactions: this.current_transactions,
+            proof: proof,
+            previous_hash: prev_hash
+        };
+        // reset transactions
+        this.current_transactions = [];
+        this.chain.push(block);
+
+        return block;
+    }
+
+    // add a new transaction to this blockchain
+    this.newTransaction = (sender, recepient, amount) => {
+
+        this.current_transactions.append({
+            sender: sender,
+            recepient: recepient,
+            amount: amount
+        });
+
+        return this.last_block.index + 1;
+    }
+
+    // proof of work loop
+    this.proofOfWork = () => {
+        proof = 0
+        while (!this.valid_proof(last_proof, proof)) {
+            proof += 1
+        }
+
+        return proof
+    }
+
+    // utility get last block
+    this.lastBlock = () => {
+        this.chain[this.chain.length - 1];
+    }
+
+    // utility hash a block
+    this.hashBlock = (block) => {
+        return hash.update(block).digest('hex');
+    }
+
+
+    // seed the chain
+    this.newBlock(1, 100);
+}
+
+module.exports = {
+    blockchain: Blockchain
+}
