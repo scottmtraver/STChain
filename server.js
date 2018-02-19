@@ -16,9 +16,9 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // print node information?
-app.get('/', (req, res) => res.send('Hello STChain'))
+app.get('/', (req, res) => res.send('Welcome to STChain: More Info At https://github.com/scottmtraver/STChain'))
 
-// Routes
+// Register Routes
 app.get('/mine', mine);
 app.get('/chain', displayChain);
 app.get('/consensus', consensus);
@@ -39,23 +39,25 @@ function mine (req, res) {
     let prevHash = chain.hashBlock(lastBlock)
     let block = chain.newBlock(proof, prevHash)
 
-    console.log(proof)
-    res.send('New Block Awarded')
+    res.send('New Block Awarded!')
 }
 
 function transaction (req, res) {
-    chain.newTransaction(req.body.sender, req.body.recepient, req.body.amount);
-    res.send('transaction added to block')
+    let ret = chain.newTransaction(req.body.sender, req.body.recepient, req.body.amount);
+    console.log('Transaction added to block')
+    res.send(JSON.stringify(ret))
 }
 
 function registerNode (req, res) {
     chain.registerNode(req.body.nodeUrl)
-    res.send('new node registered')
+    console.log('Node registered on network')
+    res.send('Registered ' + req.body.nodeUrl)
 }
 
 function consensus (req, res) {
-    chain.resolveConflicts()
-    res.send('conflicts resolved')
+    let ret = chain.resolveConflicts()
+    console.log('Resolving Conflicts')
+    res.send('Resolving Conflicts');
 }
 
 

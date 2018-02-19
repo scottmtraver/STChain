@@ -2,12 +2,10 @@ const crypto = require('crypto');
 const http = require('http')
 const rp = require('request-promise');
 
-// Find a number p that when hashed with the previous block’s solution a hash with 4 leading 0s is produced.
-
 function ValidateProof(last_proof, proof) {
+// Find a number p that when hashed with the previous block’s solution a hash with 4 leading 0s is produced.
     let hash = crypto.createHash('sha256');
     let guess = hash.update(String(last_proof + proof)).digest('hex');
-    console.log(guess)
     return guess.slice(0, 4) == '0000';
 }
 // utility - this chain is valid
@@ -19,21 +17,21 @@ function ValidChain(chainToCheck) {
         let currentBlock = chainToCheck[index]
         let hash = crypto.createHash('sha256');
         if (currentBlock.previous_hash != hash.update(JSON.stringify(lastBlock)).digest('hex')) {
-            console.log('block isnt hashed')
+            console.log('Chain Invalid: Block isnt hashed')
             return false
         }
         if (!ValidateProof(lastBlock.proof, currentBlock.proof)) {
-            console.log('block proof isnt valid')
+            console.log('Chain Invalid: Proofs don\'t match')
             return false
         }
 
         lastBlock = currentBlock
         index++
     }
-    console.log("chain is valid")
     return true
 }
 
+// Blockchain Object
 function Blockchain() {
     // properties
     this.current_transactions = [];
@@ -68,21 +66,23 @@ function Blockchain() {
         return this.lastBlock().index + 1;
     }
 
-    this.registerNode = (nodeUrl) => {
-        this.nodes.push(nodeUrl);
-        console.log(this.nodes)
-    }
-
     // proof of work loop
     this.proofOfWork = (last_proof) => {
-        proof = 0
+        proof = Date.now();
         while (!ValidateProof(last_proof, proof)) {
             proof += 1
         }
 
+        console.log('Latest Proof Of Work - ' + proof)
         return proof
     }
 
+    // register another node in the network
+    this.registerNode = (nodeUrl) => {
+        this.nodes.push(nodeUrl);
+    }
+
+    // resolve conflicts against all other nodes in the 
     this.resolveConflicts = () => {
         let neighbors = this.nodes;
         let newChain = null;
@@ -91,6 +91,7 @@ function Blockchain() {
         let promises = [];
 
         neighbors.forEach((url) => {
+            console.log('Checking ' + url)
             promises.push(
                 rp(url + '/chain')
             )
@@ -98,45 +99,19 @@ function Blockchain() {
 
         Promise.all(promises).then((data) => {
             data.forEach((chainJSON) => {
-                console.log('checking ' + chainJSON)
                 let chain = JSON.parse(chainJSON).chain
                 let len = chain.length
-                console.log(len + ' vs ' + maxLen)
-                console.log(ValidChain(chain))
-                console.log('here 2')
                 if (len > maxLen && ValidChain(chain)) {
                     newChain = chain
                 }
-                console.log('inside all')
-                console.log(data)
-
             })
-            console.log("done checking")
 
             if (newChain) {
+                console.log("Replacing Chain...")
                 this.chain = newChain
-                console.log('chain replaces')
+                return this.chain
             }
         })
-
-        // neighbors.forEach((url) => {
-        //     console.log('checkin ' + url)
-
-        //     http.get(url + '/chain', (res) => {
-        //         res.on("data", function(chunk) {
-        //             console.log('checking ' + chunk)
-        //             let chain = JSON.parse(chunk).chain
-        //             let len = chain.length
-        //             console.log(len + ' vs ' + maxLen)
-        //             console.log(ValidChain(chain))
-        //             console.log('here 2')
-        //             if (len > maxLen && ValidChain(chain)) {
-        //                 this.chain = chain
-        //             }
-        //           });
-        //     })
-        // })
-
     }
 
     // utility get last block

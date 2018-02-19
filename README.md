@@ -29,9 +29,9 @@ npm start [node-port] [node-identifier]
 For example:
 
 ```
-npm start 5000 scotts-node
+npm start 5000 scott
 ```
-will start a node on localhost:5000 with an id of scotts-node
+will start a node on localhost:5000 with an id of scotts. This can also be used as your 'wallet' id.
 
 You cannot have two nodes running on the same port.
 
@@ -43,18 +43,62 @@ The server will log many of the operations so you can see confirmations and the 
 
 ## HTTP Commands
 
+Get the entire blockchain
+```
+curl -X GET -H "Content-Type: application/json" "http://localhost:5000/chain"
+```
+
+Make a transaction
+```
+curl -X POST -H "Content-Type: application/json" -d '{
+ "sender": "scott",
+ "recipient": "kevin",
+ "amount": 5
+}' "http://localhost:5000/transaction"
+```
+
+Mine a STCoin (Seal the last block)
+```
+curl -X GET -H "Content-Type: application/json" "http://localhost:5000/mine"
+```
+
+Bring this node into consensus with the rest of the network
+```
+curl -X GET -H "Content-Type: application/json" "http://localhost:5000/consensus"
+```
+
+Register a new node on the network
+```
+curl -X POST -H "Content-Type: application/json" -d '{
+ "nodeUrl": "http://localhost:5001",
+}' "http://localhost:5000/register"
+```
+
 
 ## Theory
+
+The blockchain is created with a seed block.
+
+Current transactions are held until sealed via Mining.
+
+Mining seals the blockchain with the currently held transactions in a new block awarding the node with 1 STCoin as the last transaction in the sealed block.
+ 
+ - The Proof of Work is done by iterating through hashes starting at Date.now() and finding the first sha1 hash that starts in 4 '0's.
+ - This is added to the string representation (JSON.stringify) of the last block and saved.
+ - The chain can be validated by hashing these together starting with the first block.
+
+Consensus amongst nodes is granted to the longest valid blockchain (done by iterating through registered node's /chain endpoints and replacing this nodes blockchain if necessary).
+
 
 ```
 Block Structure
 {
     'index': 1, //transaction number
-    'timestamp': 1506057125.900785, // time
+    'timestamp': 1506057125, // time
     'transactions': [
         {
-            'sender': "8527147fe1f5426f9dd545de4b27ee00", // wallet
-            'recipient': "a77f5cdfa2934df3954a5c7c7da5df1f", // wallet
+            'sender': "scott", // node-id
+            'recipient': "kevin", // node-id
             'amount': 5, // transaction amount
         }
     ],
@@ -66,11 +110,11 @@ Block Structure
 
 ## Questions
 
-why can't a small network have broadcast consensus resolution (because of async timing)
-should you validate at regular intervals? or before a transaction?
-performance
-network performance?
-cost of transactions between nodes
+### Broadcast Consensus Resolution?
+Why can't a node broadcast consensus resolution? It may have to enact a freeze or buffer on other nodes so that there are no timing issues.
+
+### Mining Intervals
+Should you mine at regular intervals or before each transaction?
 
 ## Resources
 
