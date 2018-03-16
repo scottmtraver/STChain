@@ -13,7 +13,10 @@ function printMenu () {
 }
 
 function printBlockchain (chain) {
-    console.log('Pending transactions: ' + chain.current_transactions)
+    console.log('Pending transactions: ')
+    chain.current_transactions.forEach((t) => {
+        console.log(t)
+    })
     console.log('Blocks: ')
     chain.chain.forEach((b) => {
         console.log(b)
@@ -77,8 +80,8 @@ function mine (verbose) {
     let proof = chain.proofOfWork(lastProof, verbose)
 
     if (verbose) { console.log('- Awarding Coin') }
-    chain.newTransaction(0, wallet, 1); // add a new transaction 
 
     let prevHash = chain.hashBlock(lastBlock)
     let block = chain.newBlock(proof, prevHash)
+    chain.newTransaction(0, wallet, 1); // add a new transaction 
 }

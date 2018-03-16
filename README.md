@@ -19,17 +19,35 @@ cd STChain
 npm install
 ```
 
-## Server Commands
+## Run Via Command Line
+
+To run the blockchain on the command line (no network):
+
+```
+npm start
+```
+You will get a command line interface with the following commands:
+```
+$print -  displays the entire blockchain
+$mine - mines and seals a block of the pending transactions and awards a coin
+$transfer - simulate transaction with sender, receiver, amount
+$verbose - toggle verbose flag
+$help - reprint menu
+```
+Ctrl-C to quit
+Mining awards appear under your wallet called `my-wallet`
+
+## Run Via HTTP Server
 
 To run a node of the STCoin network:
 
 ```
-npm start [node-port] [node-identifier]
+npm run server [node-port] [node-identifier]
 ```
 For example:
 
 ```
-npm start 5000 scott
+npm run server 5000 scott
 ```
 will start a node on localhost:5000 with an id of scotts. This can also be used as your 'wallet' id.
 

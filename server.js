@@ -40,10 +40,11 @@ function mine (req, res) {
     let lastProof = lastBlock.proof;
     let proof = chain.proofOfWork(lastProof)
 
-    chain.newTransaction(0, nodeID, 1); // add a new transaction 
 
     let prevHash = chain.hashBlock(lastBlock)
     let block = chain.newBlock(proof, prevHash)
+
+    chain.newTransaction(0, nodeID, 1); // add a new transaction 
 
     res.send('New Block Awarded!')
 }

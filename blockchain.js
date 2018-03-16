@@ -1,13 +1,14 @@
 const crypto = require('crypto');
 const http = require('http')
 const rp = require('request-promise');
+const difficulty = 4
 
 function ValidateProof(last_proof, proof, verbose) {
 // Find a number p that when hashed with the previous block’s solution a hash with 4 leading 0s is produced.
     let hash = crypto.createHash('sha256');
     let guess = hash.update(String(last_proof + proof)).digest('hex');
     if (verbose) { console.log('- guess ' + guess) }
-    return guess.slice(0, 4) == '0000';
+    return guess.slice(0, difficulty) == Array(difficulty).fill('0').join('');
 }
 // utility - this chain is valid
 function ValidChain(chainToCheck) {
