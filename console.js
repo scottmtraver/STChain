@@ -7,6 +7,7 @@ function printMenu () {
     console.log('print - displays the entire blockchain')
     console.log('mine - mines and seals a block of the pending transactions and awards a coin')
     console.log('transfer - add a transaction to pending transactions: requires sender, receiver, amount')
+    console.log('validate - run chain validation')
     console.log('verbose - toggle verbose mode logging')
     console.log('help - prints menu')
     console.log('ctrl-C to exit :D')
@@ -55,6 +56,14 @@ rl.on('line', function(line) {
             // add to pending transactions
             chain.newTransaction(fromAddress, toAddress, amount)
             console.log('Transfer pending')
+            break;
+        case 'validate':
+            let valid = chain.validate(verbose);
+            if (valid) {
+                console.log('Blockchain is valid :-)')
+            } else {
+                console.log('Blockchain is Not valid :-(')
+            }
             break;
         case 'verbose':
             verbose = !verbose

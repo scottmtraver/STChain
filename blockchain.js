@@ -7,22 +7,23 @@ function ValidateProof(last_proof, proof, verbose) {
 // Find a number p that when hashed with the previous block’s solution a hash with 4 leading 0s is produced.
     let hash = crypto.createHash('sha256');
     let guess = hash.update(String(last_proof + proof)).digest('hex');
-    if (verbose) { console.log('- guess ' + guess) }
+    if (verbose) { console.log('-  hash check ' + guess) }
     return guess.slice(0, difficulty) == Array(difficulty).fill('0').join('');
 }
 // utility - this chain is valid
-function ValidChain(chainToCheck) {
+function ValidChain(chainToCheck, verbose) {
     let lastBlock = chainToCheck[0]
     let index = 1;
 
     while (index < chainToCheck.length) {
+        if (verbose) { console.log('Checking Block...') }
         let currentBlock = chainToCheck[index]
         let hash = crypto.createHash('sha256');
         if (currentBlock.previous_hash != hash.update(JSON.stringify(lastBlock)).digest('hex')) {
             console.log('Chain Invalid: Block isnt hashed')
             return false
         }
-        if (!ValidateProof(lastBlock.proof, currentBlock.proof)) {
+        if (!ValidateProof(lastBlock.proof, currentBlock.proof, verbose)) {
             console.log('Chain Invalid: Proofs don\'t match')
             return false
         }
@@ -115,6 +116,10 @@ function Blockchain() {
                 return this.chain
             }
         })
+    }
+
+    this.validate = (verbose) => {
+        return ValidChain(this.chain, verbose)
     }
 
     // utility get last block

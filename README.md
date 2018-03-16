@@ -28,14 +28,17 @@ npm start
 ```
 You will get a command line interface with the following commands:
 ```
-$print -  displays the entire blockchain
-$mine - mines and seals a block of the pending transactions and awards a coin
-$transfer - simulate transaction with sender, receiver, amount
-$verbose - toggle verbose flag
-$help - reprint menu
+SCOTT-COIN> print -  displays the entire blockchain
+SCOTT-COIN> mine - mines and seals a block of the pending transactions and awards a coin
+SCOTT-COIN> transfer - simulate transaction with sender, receiver, amount
+SCOTT-COIN> validate - simulate transaction with sender, receiver, amount
+SCOTT-COIN> verbose - toggle verbose flag
+SCOTT-COIN> help - reprint menu
 ```
 Ctrl-C to quit
 Mining awards appear under your wallet called `my-wallet`
+
+There is no wallet validation at the moment... mine and send all you want!
 
 ## Run Via HTTP Server
 
