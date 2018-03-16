@@ -3,11 +3,16 @@ let readline = require('readline'),
 const Blockchain = require('./blockchain').Blockchain
 
 // print menu
-console.log('print - displays the entire blockchain')
-console.log('mine - mines and seals a block of the pending transactions and awards a coin')
-console.log('transfer - add a transaction to pending transactions: requires sender, receiver, amount')
-console.log('verbose - toggle verbose mode logging')
-console.log('ctrl-C to exit :D')
+function printMenu () {
+    console.log('print - displays the entire blockchain')
+    console.log('mine - mines and seals a block of the pending transactions and awards a coin')
+    console.log('transfer - add a transaction to pending transactions: requires sender, receiver, amount')
+    console.log('verbose - toggle verbose mode logging')
+    console.log('help - prints menu')
+    console.log('ctrl-C to exit :D')
+}
+
+printMenu()
 
 // Start the blockchain!
 const chain = new Blockchain()
@@ -41,8 +46,11 @@ rl.on('line', function(line) {
             console.log('Transfer pending')
             break;
         case 'verbose':
-            console.log('Toggeling Verbose Mode: ' + !verbose)
             verbose = !verbose
+            console.log('Toggeling Verbose Mode: ' + (verbose ? 'on' : 'off'))
+            break;
+        case 'help':
+            printMenu()
             break;
         default:
             console.warn('Invalid Action')
