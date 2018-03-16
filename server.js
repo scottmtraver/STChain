@@ -9,6 +9,12 @@ const app = express()
 // use command line arguments as port and node identifier
 let port = process.argv[2]
 let nodeID = process.argv[3]
+
+if (!port || !nodeID) {
+    console.error('Please provide 2 arguments: port and node identifier')
+    process.exit()
+}
+
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 

@@ -2,10 +2,11 @@ const crypto = require('crypto');
 const http = require('http')
 const rp = require('request-promise');
 
-function ValidateProof(last_proof, proof) {
+function ValidateProof(last_proof, proof, verbose) {
 // Find a number p that when hashed with the previous block’s solution a hash with 4 leading 0s is produced.
     let hash = crypto.createHash('sha256');
     let guess = hash.update(String(last_proof + proof)).digest('hex');
+    if (verbose) { console.log('- guess ' + guess) }
     return guess.slice(0, 4) == '0000';
 }
 // utility - this chain is valid
@@ -67,13 +68,14 @@ function Blockchain() {
     }
 
     // proof of work loop
-    this.proofOfWork = (last_proof) => {
+    this.proofOfWork = (last_proof, verbose) => {
+        // nonce seed
         proof = Date.now();
-        while (!ValidateProof(last_proof, proof)) {
+        while (!ValidateProof(last_proof, proof, verbose)) {
             proof += 1
         }
 
-        console.log('Latest Proof Of Work - ' + proof)
+        if (verbose) { console.log('- Latest Proof Of Work - ' + proof) }
         return proof
     }
 
@@ -119,14 +121,11 @@ function Blockchain() {
         return this.chain[this.chain.length - 1];
     }
 
-
-
     // utility hash a block
     this.hashBlock = (block) => {
         let hash = crypto.createHash('sha256');
         return hash.update(JSON.stringify(block)).digest('hex');
     }
-
 
     // seed the chain
     this.newBlock(1, 100);
