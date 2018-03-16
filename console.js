@@ -12,6 +12,14 @@ function printMenu () {
     console.log('ctrl-C to exit :D')
 }
 
+function printBlockchain (chain) {
+    console.log('Pending transactions: ' + chain.current_transactions)
+    console.log('Blocks: ')
+    chain.chain.forEach((b) => {
+        console.log(b)
+    })
+}
+
 printMenu()
 
 // Start the blockchain!
@@ -25,7 +33,7 @@ rl.prompt();
 rl.on('line', function(line) {
     switch(line.split(' ')[0]) {
         case 'print':
-            console.log(chain)
+            printBlockchain(chain)
             break;
         case 'mine':
             console.log('Mining Block...')
